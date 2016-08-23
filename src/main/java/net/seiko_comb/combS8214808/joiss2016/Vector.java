@@ -36,6 +36,13 @@ public class Vector {
 		return ret;
 	}
 
+	public Vector product(double d) {
+		Vector ret = new Vector(length);
+		for (int i = 0; i < length; i++)
+			ret.value[i] = d * value[i];
+		return ret;
+	}
+
 	public double product(Vector vector) {
 		checkVectorLength(this, vector);
 		double ret = 0;

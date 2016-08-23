@@ -14,6 +14,6 @@ public class LearningData {
 	
 	@Override
 	public String toString() {
-		return String.format("[%s -> %d]", x, y);
+		return String.format("[%s -> %d]", x, (int)y);
 	}
 }

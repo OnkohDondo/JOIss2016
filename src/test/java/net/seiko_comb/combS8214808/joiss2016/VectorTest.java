@@ -45,7 +45,13 @@ public class VectorTest {
 	}
 
 	@Test
-	public void testProduct() {
+	public void testProductWithScalar() {
+		assertThat($(1, 2, 3).product(4), is($(4, 8, 12)));
+		assertThat($(3424, 23, 11454).product(0), is(zero(3)));
+	}
+
+	@Test
+	public void testProductWithVector() {
 		assertThat($(2, 3).product($(1, 5)), closeTo(17, EPS));
 		assertThat($(1, 2, 3, 4, 5).product($(6, 7, 8, 9, 10)), closeTo(1 * 6 + 2 * 7 + 3 * 8 + 4 * 9 + 5 * 10, EPS));
 	}
