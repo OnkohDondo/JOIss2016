@@ -10,4 +10,9 @@ public class LinearClassifier {
 	public double f(Vector x) {
 		return w.product(x.addOne());
 	}
+
+	@Override
+	public String toString() {
+		return String.format("LinearClassifier %s", w);
+	}
 }
