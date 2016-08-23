@@ -8,14 +8,23 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class Perceptron {
+public class EasyTester {
 
 	public static void main(String[] args) {
-		new Perceptron();
+		new EasyTester();
 	}
 
-	private Perceptron() {
-		attempt(new LinearClassifier($(200, 200, 200, 100, 100, -400)));
+	private EasyTester() {
+		BinaryClassificationChecker checker = new BinaryClassificationChecker(
+				new LinearClassifier($(200, 200, 200, 100, 100, -400)), this::randomVector);
+		checker.learn(1000000, 100, (w, data) -> {
+			if (data.y * w.product(data.x) <= 0) {
+				w = w.plus(data.x.product(data.y));
+			}
+			return w;
+		});
+		checker.check(100000);
+		// attempt(new LinearClassifier($(200, 200, 200, 100, 100, -400)));
 	}
 
 	private void attempt(LinearClassifier classifier) {
