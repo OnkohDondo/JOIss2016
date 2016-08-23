@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class VectorTest {
 
-	private static final double EPS = 1E-8;
+	public static final double EPS = 1E-8;
 
 	@Test
 	public void testZero() {
@@ -49,10 +49,16 @@ public class VectorTest {
 		assertThat($(2, 3).product($(1, 5)), closeTo(17, EPS));
 		assertThat($(1, 2, 3, 4, 5).product($(6, 7, 8, 9, 10)), closeTo(1 * 6 + 2 * 7 + 3 * 8 + 4 * 9 + 5 * 10, EPS));
 	}
-	
+
 	@Test(expected = NotSameVectorLengthException.class)
-	public void testFailingProduct(){
+	public void testFailingProduct() {
 		$(2, 3).product($(4, 5, 6));
+	}
+
+	@Test
+	public void testAddZero() {
+		assertThat($().addOne(), is($(1)));
+		assertThat($(3, 4).addOne(), is($(3, 4, 1)));
 	}
 
 }

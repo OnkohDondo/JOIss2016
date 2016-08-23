@@ -14,8 +14,8 @@ public class Vector {
 	public static Vector zero(int length) {
 		return new Vector(length);
 	}
-	
-	public static Vector $(double... component){
+
+	public static Vector $(double... component) {
 		Vector ret = new Vector(component.length);
 		System.arraycopy(component, 0, ret.value, 0, component.length);
 		return ret;
@@ -26,6 +26,13 @@ public class Vector {
 		Vector ret = new Vector(length);
 		for (int i = 0; i < length; i++)
 			ret.value[i] = this.value[i] + vector.value[i];
+		return ret;
+	}
+
+	public Vector addOne() {
+		Vector ret = new Vector(length + 1);
+		System.arraycopy(value, 0, ret.value, 0, length);
+		ret.value[length] = 1;
 		return ret;
 	}
 
