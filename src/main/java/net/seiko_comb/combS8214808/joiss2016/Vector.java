@@ -3,8 +3,8 @@ package net.seiko_comb.combS8214808.joiss2016;
 import java.util.Arrays;
 
 public class Vector {
-	private double value[];
-	private int length;
+	public double value[];
+	public int length;
 
 	private Vector(int length) {
 		this.value = new double[length];
@@ -15,7 +15,7 @@ public class Vector {
 		return new Vector(length);
 	}
 	
-	public static Vector of(double... component){
+	public static Vector $(double... component){
 		Vector ret = new Vector(component.length);
 		System.arraycopy(component, 0, ret.value, 0, component.length);
 		return ret;
