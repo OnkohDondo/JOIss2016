@@ -15,8 +15,8 @@ public class BinaryClassificationChecker {
 
 	public BinaryClassificationChecker(LinearClassifier classifier, Supplier<Vector> testSupplier) {
 		this.classifier = classifier;
-		this.w = Vector.zero(classifier.w.length);
 		this.testSupplier = testSupplier;
+		reset();
 	}
 
 	public void learn(int size, int count, BiFunction<Vector, LearningData, Vector> reloader) {
@@ -26,7 +26,7 @@ public class BinaryClassificationChecker {
 				w = reloader.apply(w, data);
 			}
 		}
-		System.out.println(w);
+		// System.out.println(w);
 	}
 
 	public void check(int size) {
@@ -38,6 +38,10 @@ public class BinaryClassificationChecker {
 				successCount++;
 		}
 		System.out.format("Result : %.5f%% (%d/%d)\n", successCount / size * 100, (int) successCount, size);
+	}
+
+	public void reset() {
+		this.w = Vector.zero(classifier.w.length);
 	}
 
 	private LearningData generateData() {

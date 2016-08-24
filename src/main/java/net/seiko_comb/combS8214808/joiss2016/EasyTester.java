@@ -17,14 +17,52 @@ public class EasyTester {
 	private EasyTester() {
 		BinaryClassificationChecker checker = new BinaryClassificationChecker(
 				new LinearClassifier($(200, 200, 200, 100, 100, -400)), this::randomVector);
-		checker.learn(1000000, 100, (w, data) -> {
+		checker.learn(100000, 100, (w, data) -> {
 			if (data.y * w.product(data.x) <= 0) {
 				w = w.plus(data.x.product(data.y));
 			}
 			return w;
 		});
 		checker.check(100000);
+		checker.reset();
+
+		for (double cc = 5e-10; cc <= 5e10; cc *= 10) {
+			int count = 100000;
+			double eta = 0.001;
+			double c = cc / count;
+
+			checker = new BinaryClassificationChecker(new LinearClassifier($(2, 2, 2, 1, 1, -4)),
+					() -> $(Math.random(), Math.random(), Math.random(), Math.random(), Math.random()));
+			checker.learn(count, 1, (w, data) -> {
+				Vector x = data.x;
+				double y = data.y;
+				if (y * w.product(x) <= 1) {
+					w = w.plus(x.product(eta * y));
+				}
+				double last = w.value[w.length - 1];
+				w = w.plus(w.product(2 * eta * c * -1));
+				w.value[w.length - 1] = last;
+				return w;
+			});
+			System.out.format("c=%.2e ", c);
+//			checker.check(100000);
+
+			checker = new BinaryClassificationChecker(new LinearClassifier($(2, 2, 2, 1, 1, -4)),
+					() -> $(Math.random(), Math.random(), Math.random(), Math.random(), Math.random()));
+			checker.learn(count, 1, (w, data) -> {
+				Vector x = data.x;
+				double y = data.y;
+				w = w.plus(x.product(-y).product(1 - sigmoid(y * w.product(x))).plus(w.product(2 * c)).product(-eta));
+				return w;
+			});
+//			System.out.print("           ");
+			checker.check(100000);
+		}
 		// attempt(new LinearClassifier($(200, 200, 200, 100, 100, -400)));
+	}
+
+	private double sigmoid(double x) {
+		return 1 / (1 + Math.exp(-x));
 	}
 
 	private void attempt(LinearClassifier classifier) {
