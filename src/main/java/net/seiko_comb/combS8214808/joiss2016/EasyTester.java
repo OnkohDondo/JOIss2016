@@ -36,16 +36,17 @@ public class EasyTester {
 			checker.learn(count, 1, (w, data) -> {
 				Vector x = data.x;
 				double y = data.y;
+				Vector ww = w;
 				if (y * w.product(x) <= 1) {
 					w = w.plus(x.product(eta * y));
 				}
-				double last = w.value[w.length - 1];
-				w = w.plus(w.product(2 * eta * c * -1));
-				w.value[w.length - 1] = last;
+				// double last = w.value[w.length - 1];
+				w = w.plus(ww.product(2 * eta * c * -1));
+				// w.value[w.length - 1] = last;
 				return w;
 			});
 			System.out.format("c=%.2e ", c);
-//			checker.check(100000);
+			// checker.check(100000);
 
 			checker = new BinaryClassificationChecker(new LinearClassifier($(2, 2, 2, 1, 1, -4)),
 					() -> $(Math.random(), Math.random(), Math.random(), Math.random(), Math.random()));
@@ -55,7 +56,7 @@ public class EasyTester {
 				w = w.plus(x.product(-y).product(1 - sigmoid(y * w.product(x))).plus(w.product(2 * c)).product(-eta));
 				return w;
 			});
-//			System.out.print("           ");
+			// System.out.print(" ");
 			checker.check(100000);
 		}
 		// attempt(new LinearClassifier($(200, 200, 200, 100, 100, -400)));

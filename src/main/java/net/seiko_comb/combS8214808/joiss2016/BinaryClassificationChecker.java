@@ -47,4 +47,8 @@ public class BinaryClassificationChecker {
 	private LearningData generateData() {
 		return new LearningData(classifier, testSupplier.get());
 	}
+	
+	public Vector getW() {
+		return w;
+	}
 }

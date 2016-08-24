@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataFactory {
+	private int inputDimension;
 	private int classCount;
 	private String[] caption;
 	private List<Data> datas = new ArrayList<>();
 
-	public DataFactory(int classCount) {
+	public DataFactory(int inputDimension, int classCount) {
+		this.inputDimension = inputDimension;
 		this.classCount = classCount;
 	}
 
@@ -38,8 +40,12 @@ public class DataFactory {
 			throw new RuntimeException("Added data of different dataset.");
 		datas.add(data);
 	}
-	
+
 	public List<Data> getDatas() {
 		return datas;
+	}
+
+	public int getInputDimension() {
+		return inputDimension;
 	}
 }
