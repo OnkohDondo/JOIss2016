@@ -32,7 +32,7 @@ public class MnistReader {
 			for (int i = 0; i < 10; i++) {
 				double y = data.getLabel() == i ? 1 : -1;
 				// w[i] = perceptron(w[i], x, y);
-				w[i] = Mnist.svm(w[i], x, y, eta, c);
+				// w[i] = Mnist.svm(w[i], x, y, eta, c);
 				// w[i] = logistic(w[i], x, y, eta, c);
 			}
 		}
