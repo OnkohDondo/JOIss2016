@@ -56,6 +56,7 @@ public class DetectLetters extends PApplet {
 		System.out.println(count / 10000);
 		reader = new MnistReader(trainList, testList);
 		reader.read();
+		// reader.load();
 	}
 
 	private void readData() {
@@ -85,7 +86,7 @@ public class DetectLetters extends PApplet {
 	public void mouseDragged() {
 		float v = dist(pmouseX, pmouseY, mouseX, mouseY);
 		stroke(0);
-		strokeWeight(1);
+		strokeWeight(3);
 		line(pmouseX / 2, pmouseY / 2, mouseX / 2, mouseY / 2);
 	}
 

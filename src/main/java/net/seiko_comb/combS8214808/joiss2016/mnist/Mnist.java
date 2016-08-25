@@ -33,8 +33,10 @@ public class Mnist extends PApplet {
 	private void operate() {
 		readData();
 		reader = new MnistReader(trainList, testList);
+		// reader.load();
 		reader.read();
 		finished = true;
+		System.out.println("Ready");
 	}
 
 	public static Vector perceptron(Vector w, Vector x, double y) {
@@ -71,8 +73,11 @@ public class Mnist extends PApplet {
 		size(140, 140);
 	}
 
+	private PGraphics resized;
+
 	public void setup() {
 		new Thread(this::operate).start();
+		resized = createGraphics(28, 28);
 	}
 
 	private int index = 0;
@@ -81,7 +86,17 @@ public class Mnist extends PApplet {
 	}
 
 	public void keyTyped() {
-		background(255);
+		if (key == 'q')
+			background(255);
+		if ('0' <= key && key <= '9') {
+			int label = key - '0';
+			Vector vector = getVector();
+			int result = reader.getResult(vector);
+			reader.learnData(vector, label, 0.05, 0.2);
+			System.out.format("learned %d->%d%n", result, label);
+			reader.save();
+			background(255);
+		}
 	}
 
 	public void mousePressed() {
@@ -89,21 +104,25 @@ public class Mnist extends PApplet {
 
 	public void mouseDragged() {
 		float v = dist(pmouseX, pmouseY, mouseX, mouseY);
-		stroke(0);
+		stroke(0, 255 - v);
 		strokeWeight(15);
 		line(pmouseX, pmouseY, mouseX, mouseY);
 	}
 
 	public void mouseReleased() {
+		Vector vector = getVector();
+		int ans = reader.getResult(vector);
+	}
+
+	private Vector getVector() {
 		PImage cut = get();
-		PGraphics resized = createGraphics(28, 28);
 		resized.beginDraw();
 		resized.copy(cut, 0, 0, cut.width, cut.height, 0, 0, 28, 28);
 		resized.loadPixels();
 		double[] x = getArrayFromImage(resized);
 		resized.endDraw();
-		int ans = reader.getResult($(x).addOne());
-		System.out.println(ans);
+		Vector vector = $(x).addOne();
+		return vector;
 	}
 
 	public static double[] getArrayFromImage(PGraphics resized) {

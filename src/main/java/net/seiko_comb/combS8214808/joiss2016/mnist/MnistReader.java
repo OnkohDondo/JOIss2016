@@ -3,7 +3,16 @@ package net.seiko_comb.combS8214808.joiss2016.mnist;
 import static net.seiko_comb.combS8214808.joiss2016.Vector.$;
 import static net.seiko_comb.combS8214808.joiss2016.Vector.zero;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,23 +27,19 @@ public class MnistReader {
 	public MnistReader(List<MnistData> trainList, List<MnistData> testList) {
 		this.trainList = trainList;
 		this.testList = testList;
-	}
-
-	public void read() {
 		for (int i = 0; i < 10; i++) {
 			w[i] = zero(28 * 28 + 1);
 		}
+	}
+
+	public void read() {
 		Collections.shuffle(trainList);
 		double eta = 0.01;
 		double c = 5.0 / trainList.size();
 		for (MnistData data : trainList) {
 			Vector x = $(data.getPixel()).addOne();
-			for (int i = 0; i < 10; i++) {
-				double y = data.getLabel() == i ? 1 : -1;
-				// w[i] = perceptron(w[i], x, y);
-				// w[i] = Mnist.svm(w[i], x, y, eta, c);
-				// w[i] = logistic(w[i], x, y, eta, c);
-			}
+			int label = data.getLabel();
+			learnData(x, label, eta, c);
 		}
 		double count = 0;
 		for (MnistData data : testList) {
@@ -48,6 +53,15 @@ public class MnistReader {
 		System.out.println(count / testList.size());
 	}
 
+	public void learnData(Vector x, int label, double eta, double c) {
+		for (int i = 0; i < 10; i++) {
+			double y = label == i ? 1 : -1;
+			// w[i] = perceptron(w[i], x, y);
+			w[i] = Mnist.svm(w[i], x, y, 0.0002, 0.05);
+			// w[i] = logistic(w[i], x, y, eta, c);
+		}
+	}
+
 	public int getResult(Vector x) {
 		double[] score = new double[10];
 		for (int i = 0; i < 10; i++) {
@@ -59,6 +73,37 @@ public class MnistReader {
 				max = i;
 		}
 		return max;
+	}
+
+	public void save() {
+		try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("tmp/w")))) {
+			for (int i = 0; i < 10; i++) {
+				double[] ww = w[i].value;
+				for (int j = 0; j < 28 * 28 + 1; j++) {
+					out.writeDouble(ww[j]);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void load() {
+		try (DataInputStream in = new DataInputStream(
+				new BufferedInputStream(new FileInputStream(new File("tmp/w"))))) {
+			for (int i = 0; i < 10; i++) {
+				double[] ww = w[i].value;
+				for (int j = 0; j < 28 * 28 + 1; j++) {
+					ww[j] = in.readDouble();
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
