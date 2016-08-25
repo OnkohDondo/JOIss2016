@@ -1,18 +1,22 @@
 package net.seiko_comb.combS8214808.joiss2016.mnist;
 
-import static net.seiko_comb.combS8214808.joiss2016.Vector.*;
-import java.io.BufferedInputStream;
+import static net.seiko_comb.combS8214808.joiss2016.Vector.$;
+import static net.seiko_comb.combS8214808.joiss2016.Vector.zero;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import net.seiko_comb.combS8214808.joiss2016.Vector;
 import processing.core.PApplet;
+import processing.core.PGraphics;
+import processing.core.PImage;
 
 public class Mnist extends PApplet {
 	public static void main(String[] args) {
@@ -20,10 +24,14 @@ public class Mnist extends PApplet {
 		// new Mnist().operate();
 	}
 
+	private List<MnistData> trainList, testList;
+	private List<Integer> result = new ArrayList<>();
+	private boolean finished = false;
+	private Vector[] w = new Vector[10];
+
 	private void operate() {
 		readData();
 
-		Vector[] w = new Vector[10];
 		for (int i = 0; i < 10; i++) {
 			w[i] = zero(28 * 28 + 1);
 		}
@@ -34,28 +42,35 @@ public class Mnist extends PApplet {
 			Vector x = $(data.getPixel()).addOne();
 			for (int i = 0; i < 10; i++) {
 				double y = data.getLabel() == i ? 1 : -1;
-				// w[i] = perceptron(w[i], x, y);
-				w[i] = svm(w[i], x, y, eta, c);
+				w[i] = perceptron(w[i], x, y);
+				// w[i] = svm(w[i], x, y, eta, c);
+				// w[i] = logistic(w[i], x, y, eta, c);
 			}
 		}
 		double count = 0;
 		for (MnistData data : testList) {
 			Vector x = $(data.getPixel()).addOne();
-			double[] score = new double[10];
-			for (int i = 0; i < 10; i++) {
-				score[i] = w[i].product(x);
-			}
-			int max = 0;
-			for (int i = 1; i < 10; i++) {
-				if (score[max] < score[i])
-					max = i;
-			}
+			int max = getResult(x);
 			if (max == data.getLabel()) {
 				count++;
 			}
 			result.add(max);
 		}
 		System.out.println(count / testList.size());
+		finished = true;
+	}
+
+	private int getResult(Vector x) {
+		double[] score = new double[10];
+		for (int i = 0; i < 10; i++) {
+			score[i] = w[i].product(x);
+		}
+		int max = 0;
+		for (int i = 1; i < 10; i++) {
+			if (score[max] < score[i])
+				max = i;
+		}
+		return max;
 	}
 
 	public static Vector perceptron(Vector w, Vector x, double y) {
@@ -74,8 +89,14 @@ public class Mnist extends PApplet {
 		return w;
 	}
 
-	private List<MnistData> trainList, testList;
-	private List<Integer> result = new ArrayList<>();
+	public static Vector logistic(Vector w, Vector x, double y, double eta, double c) {
+		w = w.plus(x.product(-y).product(1 - sigmoid(y * w.product(x))).plus(w.product(2 * c)).product(-eta));
+		return w;
+	}
+
+	public static double sigmoid(double x) {
+		return 1 / (1 + Math.exp(-x));
+	}
 
 	private void readData() {
 		trainList = readData("train-images.idx3-ubyte", "train-labels.idx1-ubyte");
@@ -118,26 +139,40 @@ public class Mnist extends PApplet {
 	}
 
 	public void setup() {
-		operate();
+		new Thread(this::operate).start();
 	}
 
 	private int index = 0;
 
 	public void draw() {
-		image(testList.get(index).getImage(this), 0, 0, 140, 140);
-		fill(255, 0, 0);
-		textAlign(LEFT);
-		text(testList.get(index).getLabel(), 0, height);
-		fill(0, 0, 255);
-		textAlign(RIGHT);
-		text(result.get(index), width, height);
 	}
 
 	public void keyTyped() {
-		if (key == 'j')
-			index++;
-		if (key == 'k')
-			index--;
-		index = (index + testList.size()) % testList.size();
+		background(255);
+	}
+
+	public void mousePressed() {
+	}
+
+	public void mouseDragged() {
+		float v = dist(pmouseX, pmouseY, mouseX, mouseY);
+		stroke(0);
+		strokeWeight(15);
+		line(pmouseX, pmouseY, mouseX, mouseY);
+	}
+
+	public void mouseReleased() {
+		PImage cut = get();
+		PGraphics resized = createGraphics(28, 28);
+		resized.beginDraw();
+		resized.copy(cut, 0, 0, cut.width, cut.height, 0, 0, 28, 28);
+		resized.loadPixels();
+		double[] x = new double[28 * 28];
+		for (int i = 0; i < 28 * 28; i++) {
+			x[i] = 255 - resized.pixels[i] & 0xff;
+		}
+		resized.endDraw();
+		int ans = getResult($(x).addOne());
+		System.out.println(ans);
 	}
 }
