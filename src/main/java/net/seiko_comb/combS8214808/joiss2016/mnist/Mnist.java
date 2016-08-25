@@ -28,49 +28,13 @@ public class Mnist extends PApplet {
 	private List<Integer> result = new ArrayList<>();
 	private boolean finished = false;
 	private Vector[] w = new Vector[10];
+	private MnistReader reader;
 
 	private void operate() {
 		readData();
-
-		for (int i = 0; i < 10; i++) {
-			w[i] = zero(28 * 28 + 1);
-		}
-		Collections.shuffle(trainList);
-		double eta = 0.01;
-		double c = 5.0 / trainList.size();
-		for (MnistData data : trainList) {
-			Vector x = $(data.getPixel()).addOne();
-			for (int i = 0; i < 10; i++) {
-				double y = data.getLabel() == i ? 1 : -1;
-				w[i] = perceptron(w[i], x, y);
-				// w[i] = svm(w[i], x, y, eta, c);
-				// w[i] = logistic(w[i], x, y, eta, c);
-			}
-		}
-		double count = 0;
-		for (MnistData data : testList) {
-			Vector x = $(data.getPixel()).addOne();
-			int max = getResult(x);
-			if (max == data.getLabel()) {
-				count++;
-			}
-			result.add(max);
-		}
-		System.out.println(count / testList.size());
+		reader = new MnistReader(trainList, testList);
+		reader.read();
 		finished = true;
-	}
-
-	private int getResult(Vector x) {
-		double[] score = new double[10];
-		for (int i = 0; i < 10; i++) {
-			score[i] = w[i].product(x);
-		}
-		int max = 0;
-		for (int i = 1; i < 10; i++) {
-			if (score[max] < score[i])
-				max = i;
-		}
-		return max;
 	}
 
 	public static Vector perceptron(Vector w, Vector x, double y) {
@@ -99,39 +63,8 @@ public class Mnist extends PApplet {
 	}
 
 	private void readData() {
-		trainList = readData("train-images.idx3-ubyte", "train-labels.idx1-ubyte");
-		testList = readData("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte");
-	}
-
-	private List<MnistData> readData(String imageFileName, String labelFileName) {
-		List<MnistData> ret = new ArrayList<>();
-		try (DataInputStream imageIn = new DataInputStream(
-				new BufferedInputStream(Files.newInputStream(Paths.get("input", "mnist", imageFileName))));
-				DataInputStream labelIn = new DataInputStream(
-						new BufferedInputStream(Files.newInputStream(Paths.get("input", "mnist", labelFileName))))) {
-			if (imageIn.readInt() != 0x803)
-				throw new RuntimeException();
-			if (labelIn.readInt() != 0x801)
-				throw new RuntimeException();
-			int count = imageIn.readInt();
-			if (count != labelIn.readInt())
-				throw new RuntimeException();
-			int w = imageIn.readInt(), h = imageIn.readInt();
-			if (w != 28 || h != 28)
-				throw new RuntimeException();
-			for (int i = 0; i < count; i++) {
-				int label = labelIn.readByte() & 0xff;
-				int[] pixel = new int[w * h];
-				for (int j = 0; j < w * h; j++) {
-					pixel[j] = imageIn.readByte() & 0xff;
-				}
-				ret.add(new MnistData(label, pixel));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return ret;
+		trainList = MnistData.getTrainList();
+		testList = MnistData.getTestList();
 	}
 
 	public void settings() {
@@ -167,12 +100,18 @@ public class Mnist extends PApplet {
 		resized.beginDraw();
 		resized.copy(cut, 0, 0, cut.width, cut.height, 0, 0, 28, 28);
 		resized.loadPixels();
-		double[] x = new double[28 * 28];
-		for (int i = 0; i < 28 * 28; i++) {
+		double[] x = getArrayFromImage(resized);
+		resized.endDraw();
+		int ans = reader.getResult($(x).addOne());
+		System.out.println(ans);
+	}
+
+	public static double[] getArrayFromImage(PGraphics resized) {
+		int w = resized.width, h = resized.height;
+		double[] x = new double[w * h];
+		for (int i = 0; i < w * h; i++) {
 			x[i] = 255 - resized.pixels[i] & 0xff;
 		}
-		resized.endDraw();
-		int ans = getResult($(x).addOne());
-		System.out.println(ans);
+		return x;
 	}
 }
