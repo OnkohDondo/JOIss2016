@@ -15,6 +15,14 @@ public class Vector {
 		return new Vector(length);
 	}
 
+	public static Vector $(int... component) {
+		double[] array = new double[component.length];
+		for (int i = 0; i < component.length; i++) {
+			array[i] = component[i];
+		}
+		return $(array);
+	}
+
 	public static Vector $(double... component) {
 		Vector ret = new Vector(component.length);
 		System.arraycopy(component, 0, ret.value, 0, component.length);
@@ -27,6 +35,10 @@ public class Vector {
 		for (int i = 0; i < length; i++)
 			ret.value[i] = this.value[i] + vector.value[i];
 		return ret;
+	}
+
+	public Vector minus(Vector vector) {
+		return this.plus(vector.product(-1));
 	}
 
 	public Vector addOne() {
