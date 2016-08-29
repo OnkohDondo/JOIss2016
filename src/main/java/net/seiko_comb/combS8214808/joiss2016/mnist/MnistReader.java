@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import net.seiko_comb.combS8214808.joiss2016.Vector;
 public class MnistReader {
 	private Vector[] w = new Vector[10];
 
-	private List<MnistData> trainList, testList;
+	protected List<MnistData> trainList, testList;
 	private List<Integer> result = new ArrayList<>();
 
 	public MnistReader(List<MnistData> trainList, List<MnistData> testList) {
@@ -77,8 +76,8 @@ public class MnistReader {
 
 	public void save() {
 		try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("tmp/w")))) {
-			for (int i = 0; i < 10; i++) {
-				double[] ww = w[i].value;
+			for(Vector v : w){
+				double[] ww = v.value;
 				for (int j = 0; j < 28 * 28 + 1; j++) {
 					out.writeDouble(ww[j]);
 				}
@@ -104,6 +103,10 @@ public class MnistReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println(w[0]);
 	}
 
+	public List<Integer> getResult() {
+		return result;
+	}
 }

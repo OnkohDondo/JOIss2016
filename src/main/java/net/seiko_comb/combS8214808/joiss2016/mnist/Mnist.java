@@ -1,16 +1,7 @@
 package net.seiko_comb.combS8214808.joiss2016.mnist;
 
 import static net.seiko_comb.combS8214808.joiss2016.Vector.$;
-import static net.seiko_comb.combS8214808.joiss2016.Vector.zero;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import net.seiko_comb.combS8214808.joiss2016.Vector;
@@ -25,16 +16,14 @@ public class Mnist extends PApplet {
 	}
 
 	private List<MnistData> trainList, testList;
-	private List<Integer> result = new ArrayList<>();
 	private boolean finished = false;
-	private Vector[] w = new Vector[10];
 	private MnistReader reader;
 
 	private void operate() {
 		readData();
-		reader = new MnistReader(trainList, testList);
+		reader = new OneByOneReader(trainList, testList);
 		// reader.load();
-		reader.read();
+		// reader.read();
 		finished = true;
 		System.out.println("Ready");
 	}
@@ -83,9 +72,23 @@ public class Mnist extends PApplet {
 	private int index = 0;
 
 	public void draw() {
+		if (finished) {
+			// image(testList.get(index).getImage(this), 0, 0, 140, 140);
+			// fill(255, 0, 0);
+			// textAlign(LEFT);
+			// text(testList.get(index).getLabel(), 0, height);
+			// fill(0, 0, 255);
+			// textAlign(RIGHT);
+			// text(reader.getResult().get(index), width, height);
+		}
 	}
 
 	public void keyTyped() {
+		if (key == 'j')
+			index++;
+		if (key == 'k')
+			index--;
+		index = (index + testList.size()) % testList.size();
 		if (key == 'q')
 			background(255);
 		if ('0' <= key && key <= '9') {
@@ -105,13 +108,14 @@ public class Mnist extends PApplet {
 	public void mouseDragged() {
 		float v = dist(pmouseX, pmouseY, mouseX, mouseY);
 		stroke(0, 255 - v);
-		strokeWeight(15);
+		strokeWeight(5);
 		line(pmouseX, pmouseY, mouseX, mouseY);
 	}
 
 	public void mouseReleased() {
 		Vector vector = getVector();
 		int ans = reader.getResult(vector);
+//		System.out.println(ans);
 	}
 
 	private Vector getVector() {

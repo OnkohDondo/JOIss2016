@@ -54,9 +54,9 @@ public class DetectLetters extends PApplet {
 					used[j][k] = false;
 		}
 		System.out.println(count / 10000);
-		reader = new MnistReader(trainList, testList);
-		reader.read();
-		// reader.load();
+		reader = new OneByOneReader(trainList, testList);
+		// reader.read()j
+		reader.load();
 	}
 
 	private void readData() {
@@ -81,12 +81,18 @@ public class DetectLetters extends PApplet {
 			background(255);
 		if (key == 'd')
 			detect();
+		if (key == 'r')
+			for (int i = 0; i < w * pic; i++) {
+				for (int j = 0; j < h * pic; j++) {
+					set(i, j, color(255 - genarr[j * w * pic + i]));
+				}
+			}
 	}
 
 	public void mouseDragged() {
 		float v = dist(pmouseX, pmouseY, mouseX, mouseY);
 		stroke(0);
-		strokeWeight(3);
+		strokeWeight(1);
 		line(pmouseX / 2, pmouseY / 2, mouseX / 2, mouseY / 2);
 	}
 
@@ -119,6 +125,9 @@ public class DetectLetters extends PApplet {
 	}
 
 	private void generateImage(int[] genarr, boolean[][] used) {
+		for (int i = 0; i < genarr.length; i++) {
+			genarr[i] = 0;
+		}
 		for (int i = 0; i < w * h / 6; i++) {
 			int x, y;
 			do {
@@ -147,9 +156,9 @@ public class DetectLetters extends PApplet {
 			y = (int) random(h - 1);
 			double bef = x + y;
 			if (random(2) < 1)
-				x += random(0.3f, 0.7f);
+				x += random(0.1f, 0.9f);
 			if (random(2) < 1)
-				y += random(0.3f, 0.7f);
+				y += random(0.1f, 0.9f);
 			if (x + y - bef > 0)
 				vy = -1;
 			else
